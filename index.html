@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baizzu Studio | Anime Art & Illustration</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#050505',
+                        light: '#FFFFFF',
+                        gray: {
+                            100: '#f3f4f6',
+                            400: '#9ca3af',
+                            800: '#1f2937',
+                            900: '#111827',
+                        }
+                    },
+                    fontFamily: {
+                        syne: ['Syne', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'marquee': 'marquee 25s linear infinite',
+                        'marquee-slow': 'marquee 60s linear infinite',
+                        'fade-in': 'fadeIn 0.8s ease-out forwards',
+                        'fade-in-up': 'fadeInUp 1s ease-out forwards',
+                    },
+                    keyframes: {
+                        marquee: {
+                            '0%': { transform: 'translateX(0%)' },
+                            '100%': { transform: 'translateX(-100%)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Global Styles */
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        
+        @media (hover: hover) and (pointer: fine) {
+            body {
+                cursor: none;
+            }
+            /* Custom Scrollbar */
+            ::-webkit-scrollbar {
+                width: 8px;
+            }
+            ::-webkit-scrollbar-track {
+                background: #050505; 
+            }
+            ::-webkit-scrollbar-thumb {
+                background: #333; 
+                border-radius: 4px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background: #555; 
+            }
+        }
+
+        /* Custom Cursor Elements */
+        .cursor-dot,
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: white;
+        }
+
+        .cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
+
+        body.hovering .cursor-outline {
+            width: 80px;
+            height: 80px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: transparent;
+            backdrop-filter: blur(2px);
+        }
+
+        /* Testimonial & Logo Scroller */
+        .scroller {
+            max-width: 100%;
+            overflow: hidden;
+            -webkit-mask: linear-gradient(90deg, transparent, white 10%, white 90%, transparent);
+            mask: linear-gradient(90deg, transparent, white 10%, white 90%, transparent);
+        }
+
+        .scroller__inner {
+            padding-block: 1rem;
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 2rem;
+            width: max-content;
+        }
+
+        .animate-scroll {
+            animation: scroll 40s linear infinite; /* Slightly faster for brands */
+        }
+        
+        .animate-scroll-slow {
+            animation: scroll 80s linear infinite; /* Slower for testimonials */
+        }
+
+        .animate-scroll:hover, .animate-scroll-slow:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes scroll {
+            to {
+                transform: translate(calc(-50% - 1rem));
+            }
+        }
+        
+        /* Portfolio Grid Fixes */
+        .portfolio-item {
+            margin-bottom: 1.5rem; /* Gap between vertical items in masonry */
+            break-inside: avoid;
+        }
+
+        /* Loader */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #050505;
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+    </style>
+</head>
+<body class="font-inter antialiased selection:bg-white selection:text-black">
+
+    <!-- Loader -->
+    <div id="loader">
+        <img src="https://lh3.googleusercontent.com/d/1hovhnQ-DRxuy7RNPymGUilyWVqevnabn" alt="Baizzu Logo" class="w-24 md:w-32 h-auto animate-pulse">
+    </div>
+
+    <!-- Custom Cursor (Hidden on Touch) -->
+    <div class="cursor-dot hidden md:block"></div>
+    <div class="cursor-outline hidden md:block"></div>
+
+    <!-- Navbar -->
+    <nav id="navbar" class="fixed w-full z-50 top-0 transition-all duration-300 border-b border-white/5 bg-dark/50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="font-syne text-xl md:text-2xl font-bold tracking-tighter hover-trigger z-50 flex items-center">
+                <img src="https://lh3.googleusercontent.com/d/1hovhnQ-DRxuy7RNPymGUilyWVqevnabn" alt="Baizzu Studio Logo" class="h-8 md:h-10 w-auto mr-3">
+                BAIZZU STUDIO
+            </a>
+            
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex space-x-12">
+                <a href="#work" class="text-sm font-medium hover:text-gray-400 transition-colors hover-trigger uppercase tracking-widest">Work</a>
+                <a href="#services" class="text-sm font-medium hover:text-gray-400 transition-colors hover-trigger uppercase tracking-widest">Services</a>
+                <a href="#team" class="text-sm font-medium hover:text-gray-400 transition-colors hover-trigger uppercase tracking-widest">Team</a>
+                <a href="#contact" class="text-sm font-medium hover:text-gray-400 transition-colors hover-trigger uppercase tracking-widest">Contact</a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button id="menu-btn" class="md:hidden text-white hover-trigger z-50">
+                <i data-lucide="menu"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu Overlay -->
+        <div id="mobile-menu" class="fixed inset-0 bg-dark z-40 flex flex-col justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
+            <a href="#work" class="font-syne text-4xl mb-8 hover:text-gray-400 mobile-link">WORK</a>
+            <a href="#services" class="font-syne text-4xl mb-8 hover:text-gray-400 mobile-link">SERVICES</a>
+            <a href="#team" class="font-syne text-4xl mb-8 hover:text-gray-400 mobile-link">TEAM</a>
+            <a href="#contact" class="font-syne text-4xl hover:text-gray-400 mobile-link">CONTACT</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative w-full h-screen overflow-hidden">
+        <!-- Static Hero Image -->
+        <div class="absolute inset-0 w-full h-full">
+            <img src="https://lh3.googleusercontent.com/d/1dN_W3aC77suB_40tNQMCKbOfnH3_jlrP" 
+                 class="w-full h-full object-cover object-center" 
+                 alt="Baizzu Hero Art">
+        </div>
+
+        <!-- Overlay Gradient -->
+        <div class="absolute inset-0 bg-black/40 z-10"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505]/60 z-10"></div>
+
+        <!-- Hero Content -->
+        <div class="absolute inset-0 z-20 flex flex-col justify-center items-center text-center px-4">
+            <h2 class="text-sm md:text-base font-inter tracking-[0.5em] text-gray-300 mb-4 animate-fade-in-up">VISUAL EXPERIENCE</h2>
+            <h1 class="font-syne text-6xl md:text-9xl font-extrabold tracking-tighter mb-6 mix-blend-overlay opacity-90 animate-fade-in-up" style="animation-delay: 0.2s;">
+                BAIZZU
+            </h1>
+            <p class="font-inter text-gray-400 max-w-lg mx-auto leading-relaxed animate-fade-in-up" style="animation-delay: 0.4s;">
+                Menghidupkan imajinasi melalui ilustrasi digital, desain karakter, dan visual yang imersif.
+            </p>
+            <div class="mt-10 animate-fade-in-up" style="animation-delay: 0.6s;">
+                <a href="#work" class="hover-trigger px-8 py-3 border border-white/20 rounded-full hover:bg-white hover:text-black transition-all duration-300 font-medium text-sm tracking-widest">
+                    EXPLORE WORKS
+                </a>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 animate-bounce">
+            <i data-lucide="chevron-down" class="w-6 h-6 text-white/50"></i>
+        </div>
+    </header>
+
+    <!-- Marquee Section -->
+    <div class="w-full py-8 bg-[#050505] border-y border-white/5 overflow-hidden relative z-20">
+        <div class="whitespace-nowrap flex animate-marquee">
+            <span class="text-4xl md:text-6xl font-syne font-bold text-transparent stroke-text mx-8 opacity-50">ANIME ART • NFT DESIGN • ILLUSTRATION • CHARACTER DESIGN • VISUAL DEVELOPMENT • </span>
+            <span class="text-4xl md:text-6xl font-syne font-bold text-transparent stroke-text mx-8 opacity-50">ANIME ART • NFT DESIGN • ILLUSTRATION • CHARACTER DESIGN • VISUAL DEVELOPMENT • </span>
+        </div>
+    </div>
+    <style>
+        .stroke-text {
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.3);
+        }
+    </style>
+
+    <!-- Portfolio Section -->
+    <section id="work" class="py-24 px-6 md:px-12 max-w-[1600px] mx-auto relative z-20">
+        <div class="flex flex-col md:flex-row justify-between items-end mb-16">
+            <div>
+                <h2 class="font-syne text-4xl md:text-5xl font-bold mb-2">Selected Works</h2>
+                <div class="h-1 w-20 bg-white/20"></div>
+            </div>
+            <p class="text-gray-400 mt-4 md:mt-0 font-inter text-sm md:text-right max-w-xs">
+                Koleksi karya terbaik yang menggabungkan estetika Jepang dan desain modern.
+            </p>
+        </div>
+
+        <!-- 1. FEATURED SLIDER (Awalan Center - ZOOM OUT & NO TEXT) -->
+        <div class="relative w-full h-[500px] md:h-[700px] mb-16 rounded-xl overflow-hidden group border border-white/10 shadow-2xl bg-[#050505]">
+            <!-- Slider Container -->
+            <div id="featured-slider" class="absolute inset-0 w-full h-full">
+                <!-- Slide 1 -->
+                <div class="featured-slide absolute inset-0 transition-opacity duration-1000 opacity-100 ease-in-out">
+                    <img src="https://lh3.googleusercontent.com/d/1nWLDD2YMQFKxtYf-hMDLfFuzf1Aeoznt" 
+                         class="w-full h-full object-contain object-center" 
+                         alt="Featured Art 1">
+                </div>
+                <!-- Slide 2 -->
+                <div class="featured-slide absolute inset-0 transition-opacity duration-1000 opacity-0 ease-in-out">
+                    <img src="https://lh3.googleusercontent.com/d/1lPqJR3KPk5LKmQAp99epavH62gAjsFgy" 
+                         class="w-full h-full object-contain object-center" 
+                         alt="Featured Art 2">
+                </div>
+                <!-- Slide 3 -->
+                <div class="featured-slide absolute inset-0 transition-opacity duration-1000 opacity-0 ease-in-out">
+                    <img src="https://lh3.googleusercontent.com/d/1J7DZL0k507vTSZJPiyrmDUuZ6NEzbIXe" 
+                         class="w-full h-full object-contain object-center" 
+                         alt="Featured Art 3">
+                </div>
+                <!-- Slide 4 -->
+                <div class="featured-slide absolute inset-0 transition-opacity duration-1000 opacity-0 ease-in-out">
+                    <img src="https://lh3.googleusercontent.com/d/1_93b9okTXh9mnbrZcuZDEJ77rglgyIv6" 
+                         class="w-full h-full object-contain object-center" 
+                         alt="Featured Art 4">
+                </div>
+            </div>
+
+            <!-- Slider Controls -->
+            <button id="feat-prev" class="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-black/50 hover:bg-white hover:text-black text-white rounded-full transition-all backdrop-blur-md">
+                <i data-lucide="chevron-left" class="w-6 h-6"></i>
+            </button>
+            <button id="feat-next" class="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-3 bg-black/50 hover:bg-white hover:text-black text-white rounded-full transition-all backdrop-blur-md">
+                <i data-lucide="chevron-right" class="w-6 h-6"></i>
+            </button>
+        </div>
+
+        <!-- 2. MASONRY GRID (Lanjutan) -->
+        <div class="columns-1 md:columns-2 lg:columns-3 gap-6" id="portfolio-grid">
+            
+            <!-- Visible Items -->
+
+            <!-- Item 1 -->
+            <div class="portfolio-item group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1FUGt4_SRT8XtWt7na8avWDXvJeHIGM4P" alt="Cyber Ronin" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                    <h3 class="font-syne text-xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Cyber Ronin</h3>
+                </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="portfolio-item group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1HADwCbZLAFC8h1bqlClvlq7uoWC2KJrD" alt="Neon City" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                    <h3 class="font-syne text-xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Neon City</h3>
+                </div>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="portfolio-item group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1J7DZL0k507vTSZJPiyrmDUuZ6NEzbIXe" alt="Ethereal" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                    <h3 class="font-syne text-xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Ethereal</h3>
+                </div>
+            </div>
+
+            <!-- Item 4 -->
+            <div class="portfolio-item group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1JPfjhRjuEcxHZS-DCmBlF2DxOVmvMSd2" alt="Mecha Soul" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                    <h3 class="font-syne text-xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Mecha Soul</h3>
+                </div>
+            </div>
+
+            <!-- Item 5 -->
+            <div class="portfolio-item group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1LlOWfA019D3Er9vgNkwNQukKMsaH0PGo" alt="Dark Fantasy" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                    <h3 class="font-syne text-xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Dark Fantasy</h3>
+                </div>
+            </div>
+
+            <!-- Item 6 -->
+            <div class="portfolio-item group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1QDdeAHX1Za29ftMAyoj8EcLPE8G4hf6k" alt="Void Walker" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                    <h3 class="font-syne text-xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Void Walker</h3>
+                </div>
+            </div>
+
+            <!-- Item 7 -->
+            <div class="portfolio-item group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1OkUYv5vxYT192MTutNM2Of_94XOYaYiZ" alt="Sakura Blade" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                    <h3 class="font-syne text-xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Sakura Blade</h3>
+                </div>
+            </div>
+
+            <!-- Item 8 -->
+            <div class="portfolio-item group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1Qog-4NefpiRvpflcUgZwMdbgNkVN06xC" alt="Urban Samurai" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                    <h3 class="font-syne text-xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Urban Samurai</h3>
+                </div>
+            </div>
+
+            <!-- Item 9 -->
+            <div class="portfolio-item group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1ww_c4jCXOW2A2xBx3gkAuQBk-NO_ZeMx" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                    <h3 class="font-syne text-xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Baizzu Art</h3>
+                </div>
+            </div>
+
+            <!-- Item 10 -->
+            <div class="portfolio-item group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1opRMbS6XJuZEto_a50AdKvCnnhmswK3_" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                    <h3 class="font-syne text-xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Illustration</h3>
+                </div>
+            </div>
+
+            <!-- Item 11 -->
+            <div class="portfolio-item group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1_93b9okTXh9mnbrZcuZDEJ77rglgyIv6" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                    <h3 class="font-syne text-xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Character</h3>
+                </div>
+            </div>
+
+            <!-- Item 12 -->
+            <div class="portfolio-item group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1RBC90fNdSZw3VNWWuc0_QeGbkNGiDP7O" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                    <h3 class="font-syne text-xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Concept</h3>
+                </div>
+            </div>
+            
+            <!-- Hidden Items (Load More) -->
+            <div class="portfolio-item hidden group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1tY6-UUNQOBW2FwHRiDRsJ1Mn-3eLKzKy" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+            </div>
+            
+            <div class="portfolio-item hidden group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1g-CXnh-KCL_eOxP9XpiCt-7wW1dPWpVQ" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+            </div>
+
+             <div class="portfolio-item hidden group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1qzZJ-2QoYcXaq7CIKs9RrZT7rTqRuMvl" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+            </div>
+
+            <div class="portfolio-item hidden group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1nWLDD2YMQFKxtYf-hMDLfFuzf1Aeoznt" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+            </div>
+
+            <div class="portfolio-item hidden group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/18dLjDKFJYpv7uZ8sS_W4Cq0TUDOqnMxC" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+            </div>
+
+            <div class="portfolio-item hidden group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1RHs06u2GRCoIhW8C4KiBLxJlJqm8c8Wf" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+            </div>
+
+            <div class="portfolio-item hidden group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1lPqJR3KPk5LKmQAp99epavH62gAjsFgy" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+            </div>
+
+            <div class="portfolio-item hidden group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1uWGYNClBQk1gNo0UJjeWYnYg9k_ooDre" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+            </div>
+
+            <div class="portfolio-item hidden group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1Wz7P1heImwtxRbr9uXtbk1lFb44ZCcso" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+            </div>
+
+            <div class="portfolio-item hidden group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1ZDFSVq2fS2JqS83GCUiiiSjiQcj8YhRN" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+            </div>
+
+            <div class="portfolio-item hidden group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1uil-t3vuuNlKRoHCWetMTcLmQ0lk6rKk" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+            </div>
+
+            <div class="portfolio-item hidden group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1UICBmmSAL948BZiSA8tdeKEkpwapO3bV" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+            </div>
+
+            <div class="portfolio-item hidden group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1pkYDmFqtbX_szyk-80QiYp5a-8XETnEx" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+            </div>
+
+            <div class="portfolio-item hidden group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1zcs04Nk8kVQxvJlc9n6aMZUzelRnOOtm" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+            </div>
+
+            <div class="portfolio-item hidden group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1X3e3pL70mP5x2Mi2ATsgVC3zVGJdiEfW" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+            </div>
+
+            <div class="portfolio-item hidden group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1Ypu0_4LYqrjkzv1st7ZQ0KL0J74FSr5x" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+            </div>
+            
+             <div class="portfolio-item hidden group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1EameVN3X44fmYgOHiluU-nM_iPugFzqq" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+            </div>
+            
+            <div class="portfolio-item hidden group relative overflow-hidden rounded-lg cursor-none hover-trigger">
+                <img src="https://lh3.googleusercontent.com/d/1CNYX_PQk0oWEj43HvfVv9VwktB9zhi3G" alt="Artwork" class="w-full h-auto transition-transform duration-700 group-hover:scale-110">
+            </div>
+        </div>
+
+        <div class="mt-16 text-center">
+            <button id="load-more-btn" class="hover-trigger px-10 py-4 border border-white text-white font-syne font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300">
+                Load More
+            </button>
+        </div>
+    </section>
+
+    <!-- Services / Expertise -->
+    <section id="services" class="py-24 bg-[#0a0a0a] relative z-20">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="font-syne text-4xl md:text-6xl font-bold mb-16 text-center">Expertise</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Service 1 -->
+                <div class="p-8 border border-white/5 bg-white/5 hover:bg-white/10 transition-colors duration-300 rounded-lg hover-trigger">
+                    <i data-lucide="pen-tool" class="w-10 h-10 mb-6 text-white"></i>
+                    <h3 class="font-syne text-2xl font-bold mb-4">Character Design</h3>
+                    <p class="font-inter text-gray-400 leading-relaxed">Merancang karakter orisinal dengan detail mendalam, dari sketsa konsep hingga render akhir untuk game atau animasi.</p>
+                </div>
+
+                <!-- Service 2 -->
+                <div class="p-8 border border-white/5 bg-white/5 hover:bg-white/10 transition-colors duration-300 rounded-lg hover-trigger">
+                    <i data-lucide="image" class="w-10 h-10 mb-6 text-white"></i>
+                    <h3 class="font-syne text-2xl font-bold mb-4">Illustration</h3>
+                    <p class="font-inter text-gray-400 leading-relaxed">Ilustrasi full-color untuk sampul buku, poster, materi promosi, atau aset personal dengan gaya anime yang distingtif.</p>
+                </div>
+
+                <!-- Service 3 -->
+                <div class="p-8 border border-white/5 bg-white/5 hover:bg-white/10 transition-colors duration-300 rounded-lg hover-trigger">
+                    <i data-lucide="layers" class="w-10 h-10 mb-6 text-white"></i>
+                    <h3 class="font-syne text-2xl font-bold mb-4">Live2D & VTuber</h3>
+                    <p class="font-inter text-gray-400 leading-relaxed">Menyiapkan model karakter yang siap untuk di-rigging (cutting) atau mendesain model VTuber dari nol.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section id="team" class="py-24 px-6 relative z-20">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12">
+            <div class="md:w-1/2 animate-fade-in-up">
+                <img src="https://lh3.googleusercontent.com/d/1T8v08taUOcyEcjgNousJCdAlO4XjNmmU" alt="Baizzu Team" class="rounded-lg shadow-2xl hover-trigger w-full h-auto object-cover">
+            </div>
+            <div class="md:w-1/2 animate-fade-in-up" style="animation-delay: 0.2s;">
+                <h2 class="font-syne text-4xl md:text-5xl font-bold mb-6">Tim & Kolaborator</h2>
+                <p class="font-inter text-gray-400 leading-relaxed mb-8">
+                    Di balik setiap karya luar biasa terdapat tim yang berdedikasi. Kami adalah kumpulan seniman, desainer, dan kreator yang bersinergi untuk menciptakan pengalaman visual yang tak terlupakan bagi setiap klien.
+                </p>
+                <!-- Changed Button to 'Start Project' instead of 'Join Us' -->
+                <a href="#contact" class="hover-trigger inline-block border border-white text-white font-bold font-syne px-8 py-3 rounded-full hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-sm">
+                    Konsultasi Gratis
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials (Updated: Initials Only) -->
+    <section class="py-24 relative z-20 overflow-hidden bg-[#0a0a0a]">
+        <div class="max-w-full">
+            <h2 class="font-syne text-3xl font-bold mb-12 text-center">Apa Kata Klien</h2>
+            
+            <div class="scroller">
+                <div class="scroller__inner animate-scroll-slow">
+                    <!-- Client List -->
+                    
+                    <!-- Client 1 -->
+                    <div class="w-[350px] bg-[#0F0F0F] border border-white/5 p-8 rounded-xl hover-trigger shrink-0">
+                        <div class="flex text-yellow-500 mb-4">
+                            <i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        </div>
+                        <p class="font-inter text-gray-300 italic mb-6 text-sm">"Hasilnya sangat epik! Style anime-nya benar-benar sesuai dengan visi game kami."</p>
+                        <div class="flex items-center">
+                            <img src="https://lh3.googleusercontent.com/d/1yfOZM8CRXA-j9G6ZqceEeF_2AYVrdDQv" class="w-10 h-10 rounded-full mr-3 border border-white/20">
+                            <div><h4 class="font-syne font-bold text-sm">R.G.</h4><p class="text-xs text-gray-500">Game Dev</p></div>
+                        </div>
+                    </div>
+
+                    <!-- Client 2 -->
+                    <div class="w-[350px] bg-[#0F0F0F] border border-white/5 p-8 rounded-xl hover-trigger shrink-0">
+                        <div class="flex text-yellow-500 mb-4">
+                            <i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        </div>
+                        <p class="font-inter text-gray-300 italic mb-6 text-sm">"Sangat profesional dan responsif. Revisi kecil dikerjakan dengan cepat."</p>
+                        <div class="flex items-center">
+                            <img src="https://lh3.googleusercontent.com/d/1yfOZM8CRXA-j9G6ZqceEeF_2AYVrdDQv" class="w-10 h-10 rounded-full mr-3 border border-white/20">
+                            <div><h4 class="font-syne font-bold text-sm">S.L.</h4><p class="text-xs text-gray-500">VTuber Agency</p></div>
+                        </div>
+                    </div>
+
+                    <!-- Client 3 -->
+                    <div class="w-[350px] bg-[#0F0F0F] border border-white/5 p-8 rounded-xl hover-trigger shrink-0">
+                        <div class="flex text-yellow-500 mb-4">
+                            <i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        </div>
+                        <p class="font-inter text-gray-300 italic mb-6 text-sm">"Artbook cover yang dibuat Baizzu langsung meningkatkan penjualan kami!"</p>
+                        <div class="flex items-center">
+                            <img src="https://lh3.googleusercontent.com/d/1yfOZM8CRXA-j9G6ZqceEeF_2AYVrdDQv" class="w-10 h-10 rounded-full mr-3 border border-white/20">
+                            <div><h4 class="font-syne font-bold text-sm">H.K.</h4><p class="text-xs text-gray-500">Publisher</p></div>
+                        </div>
+                    </div>
+
+                    <!-- Client 4 -->
+                    <div class="w-[350px] bg-[#0F0F0F] border border-white/5 p-8 rounded-xl hover-trigger shrink-0">
+                        <div class="flex text-yellow-500 mb-4">
+                            <i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        </div>
+                        <p class="font-inter text-gray-300 italic mb-6 text-sm">"Kualitas shading dan warna sangat detail. Worth every penny."</p>
+                        <div class="flex items-center">
+                            <img src="https://lh3.googleusercontent.com/d/1yfOZM8CRXA-j9G6ZqceEeF_2AYVrdDQv" class="w-10 h-10 rounded-full mr-3 border border-white/20">
+                            <div><h4 class="font-syne font-bold text-sm">M.T.</h4><p class="text-xs text-gray-500">Musician</p></div>
+                        </div>
+                    </div>
+
+                    <!-- Client 5 -->
+                    <div class="w-[350px] bg-[#0F0F0F] border border-white/5 p-8 rounded-xl hover-trigger shrink-0">
+                        <div class="flex text-yellow-500 mb-4">
+                            <i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        </div>
+                        <p class="font-inter text-gray-300 italic mb-6 text-sm">"Komunikasi lancar, hasil memuaskan. Sukses terus Baizzu!"</p>
+                        <div class="flex items-center">
+                            <img src="https://lh3.googleusercontent.com/d/1yfOZM8CRXA-j9G6ZqceEeF_2AYVrdDQv" class="w-10 h-10 rounded-full mr-3 border border-white/20">
+                            <div><h4 class="font-syne font-bold text-sm">A.P.</h4><p class="text-xs text-gray-500">Content Creator</p></div>
+                        </div>
+                    </div>
+
+                     <!-- Client 6 -->
+                     <div class="w-[350px] bg-[#0F0F0F] border border-white/5 p-8 rounded-xl hover-trigger shrink-0">
+                        <div class="flex text-yellow-500 mb-4">
+                            <i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        </div>
+                        <p class="font-inter text-gray-300 italic mb-6 text-sm">"Desain karakternya sangat hidup dan berekspresi."</p>
+                        <div class="flex items-center">
+                            <img src="https://lh3.googleusercontent.com/d/1yfOZM8CRXA-j9G6ZqceEeF_2AYVrdDQv" class="w-10 h-10 rounded-full mr-3 border border-white/20">
+                            <div><h4 class="font-syne font-bold text-sm">D.B.</h4><p class="text-xs text-gray-500">Writer</p></div>
+                        </div>
+                    </div>
+
+                    <!-- Client 7 -->
+                    <div class="w-[350px] bg-[#0F0F0F] border border-white/5 p-8 rounded-xl hover-trigger shrink-0">
+                        <div class="flex text-yellow-500 mb-4">
+                            <i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        </div>
+                        <p class="font-inter text-gray-300 italic mb-6 text-sm">"Pengerjaan tepat waktu dengan kualitas AAA."</p>
+                        <div class="flex items-center">
+                            <img src="https://lh3.googleusercontent.com/d/1yfOZM8CRXA-j9G6ZqceEeF_2AYVrdDQv" class="w-10 h-10 rounded-full mr-3 border border-white/20">
+                            <div><h4 class="font-syne font-bold text-sm">E.S.</h4><p class="text-xs text-gray-500">Indie Dev</p></div>
+                        </div>
+                    </div>
+
+                    <!-- Client 8 -->
+                    <div class="w-[350px] bg-[#0F0F0F] border border-white/5 p-8 rounded-xl hover-trigger shrink-0">
+                        <div class="flex text-yellow-500 mb-4">
+                            <i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        </div>
+                        <p class="font-inter text-gray-300 italic mb-6 text-sm">"Sangat kooperatif dalam mewujudkan ide abstrak saya."</p>
+                        <div class="flex items-center">
+                            <img src="https://lh3.googleusercontent.com/d/1yfOZM8CRXA-j9G6ZqceEeF_2AYVrdDQv" class="w-10 h-10 rounded-full mr-3 border border-white/20">
+                            <div><h4 class="font-syne font-bold text-sm">J.R.</h4><p class="text-xs text-gray-500">Client</p></div>
+                        </div>
+                    </div>
+
+                    <!-- Client 9 -->
+                    <div class="w-[350px] bg-[#0F0F0F] border border-white/5 p-8 rounded-xl hover-trigger shrink-0">
+                        <div class="flex text-yellow-500 mb-4">
+                            <i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        </div>
+                        <p class="font-inter text-gray-300 italic mb-6 text-sm">"Hasil akhir melebihi ekspektasi awal. Recommended!"</p>
+                        <div class="flex items-center">
+                            <img src="https://lh3.googleusercontent.com/d/1yfOZM8CRXA-j9G6ZqceEeF_2AYVrdDQv" class="w-10 h-10 rounded-full mr-3 border border-white/20">
+                            <div><h4 class="font-syne font-bold text-sm">F.W.</h4><p class="text-xs text-gray-500">NFT Collector</p></div>
+                        </div>
+                    </div>
+
+                    <!-- Client 10 -->
+                    <div class="w-[350px] bg-[#0F0F0F] border border-white/5 p-8 rounded-xl hover-trigger shrink-0">
+                        <div class="flex text-yellow-500 mb-4">
+                            <i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        </div>
+                        <p class="font-inter text-gray-300 italic mb-6 text-sm">"Salah satu studio ilustrasi terbaik yang pernah saya hire."</p>
+                        <div class="flex items-center">
+                            <img src="https://lh3.googleusercontent.com/d/1yfOZM8CRXA-j9G6ZqceEeF_2AYVrdDQv" class="w-10 h-10 rounded-full mr-3 border border-white/20">
+                            <div><h4 class="font-syne font-bold text-sm">T.H.</h4><p class="text-xs text-gray-500">Director</p></div>
+                        </div>
+                    </div>
+
+                    <!-- DUPLICATE FOR INFINITE LOOP EFFECT (First 5 repeated) -->
+                    <div class="w-[350px] bg-[#0F0F0F] border border-white/5 p-8 rounded-xl hover-trigger shrink-0">
+                        <div class="flex text-yellow-500 mb-4"><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i></div>
+                        <p class="font-inter text-gray-300 italic mb-6 text-sm">"Hasilnya sangat epik! Style anime-nya benar-benar sesuai dengan visi game kami."</p>
+                        <div class="flex items-center"><img src="https://lh3.googleusercontent.com/d/1yfOZM8CRXA-j9G6ZqceEeF_2AYVrdDQv" class="w-10 h-10 rounded-full mr-3 border border-white/20"><div><h4 class="font-syne font-bold text-sm">R.G.</h4><p class="text-xs text-gray-500">Game Dev</p></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Partners Section (New) -->
+    <section class="py-24 bg-[#050505] border-t border-white/5 relative z-20 overflow-hidden">
+        <div class="max-w-7xl mx-auto text-center mb-12">
+            <h2 class="font-syne text-3xl font-bold tracking-tighter">Partner Kerja Sama</h2>
+        </div>
+        
+        <div class="scroller">
+            <div class="scroller__inner animate-scroll flex items-center">
+                <!-- Group 1 -->
+                <div class="flex items-center gap-4 mx-8 group min-w-max">
+                    <img src="https://lh3.googleusercontent.com/d/1gMYi_cHs5111GUrEaLSRisfPEEKN95x6" alt="Zetka" class="h-12 md:h-16 w-auto opacity-50 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0">
+                    <span class="font-syne font-bold tracking-tighter text-gray-500 group-hover:text-white transition-colors duration-300 text-2xl md:text-3xl">ZETKA</span>
+                </div>
+                
+                <div class="flex items-center gap-4 mx-8 group min-w-max">
+                    <img src="https://lh3.googleusercontent.com/d/1QhzLq437o24xVnb7Wlanx_8qQEbP_K3l" alt="NezenCreatif" class="h-12 md:h-16 w-auto opacity-50 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0">
+                    <span class="font-syne font-bold tracking-tighter text-gray-500 group-hover:text-white transition-colors duration-300 text-2xl md:text-3xl">NEZEN CREATIF</span>
+                </div>
+
+                <div class="flex items-center gap-4 mx-8 group min-w-max">
+                    <img src="https://lh3.googleusercontent.com/d/12cdvT8kl261PX7z-WQfd9VQUiCIbnXul" alt="ZeroOne" class="h-12 md:h-16 w-auto opacity-50 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0">
+                    <span class="font-syne font-bold tracking-tighter text-gray-500 group-hover:text-white transition-colors duration-300 text-2xl md:text-3xl">ZERO ONE</span>
+                </div>
+
+                <!-- Duplicates for Loop -->
+                <div class="flex items-center gap-4 mx-8 group min-w-max">
+                    <img src="https://lh3.googleusercontent.com/d/1gMYi_cHs5111GUrEaLSRisfPEEKN95x6" alt="Zetka" class="h-12 md:h-16 w-auto opacity-50 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0">
+                    <span class="font-syne font-bold tracking-tighter text-gray-500 group-hover:text-white transition-colors duration-300 text-2xl md:text-3xl">ZETKA</span>
+                </div>
+                
+                <div class="flex items-center gap-4 mx-8 group min-w-max">
+                    <img src="https://lh3.googleusercontent.com/d/1QhzLq437o24xVnb7Wlanx_8qQEbP_K3l" alt="NezenCreatif" class="h-12 md:h-16 w-auto opacity-50 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0">
+                    <span class="font-syne font-bold tracking-tighter text-gray-500 group-hover:text-white transition-colors duration-300 text-2xl md:text-3xl">NEZEN CREATIF</span>
+                </div>
+
+                <div class="flex items-center gap-4 mx-8 group min-w-max">
+                    <img src="https://lh3.googleusercontent.com/d/12cdvT8kl261PX7z-WQfd9VQUiCIbnXul" alt="ZeroOne" class="h-12 md:h-16 w-auto opacity-50 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0">
+                    <span class="font-syne font-bold tracking-tighter text-gray-500 group-hover:text-white transition-colors duration-300 text-2xl md:text-3xl">ZERO ONE</span>
+                </div>
+
+                <div class="flex items-center gap-4 mx-8 group min-w-max">
+                    <img src="https://lh3.googleusercontent.com/d/1gMYi_cHs5111GUrEaLSRisfPEEKN95x6" alt="Zetka" class="h-12 md:h-16 w-auto opacity-50 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0">
+                    <span class="font-syne font-bold tracking-tighter text-gray-500 group-hover:text-white transition-colors duration-300 text-2xl md:text-3xl">ZETKA</span>
+                </div>
+                
+                <div class="flex items-center gap-4 mx-8 group min-w-max">
+                    <img src="https://lh3.googleusercontent.com/d/1QhzLq437o24xVnb7Wlanx_8qQEbP_K3l" alt="NezenCreatif" class="h-12 md:h-16 w-auto opacity-50 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0">
+                    <span class="font-syne font-bold tracking-tighter text-gray-500 group-hover:text-white transition-colors duration-300 text-2xl md:text-3xl">NEZEN CREATIF</span>
+                </div>
+
+                <div class="flex items-center gap-4 mx-8 group min-w-max">
+                    <img src="https://lh3.googleusercontent.com/d/12cdvT8kl261PX7z-WQfd9VQUiCIbnXul" alt="ZeroOne" class="h-12 md:h-16 w-auto opacity-50 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0">
+                    <span class="font-syne font-bold tracking-tighter text-gray-500 group-hover:text-white transition-colors duration-300 text-2xl md:text-3xl">ZERO ONE</span>
+                </div>
+                
+                 <div class="flex items-center gap-4 mx-8 group min-w-max">
+                    <img src="https://lh3.googleusercontent.com/d/1gMYi_cHs5111GUrEaLSRisfPEEKN95x6" alt="Zetka" class="h-12 md:h-16 w-auto opacity-50 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0">
+                    <span class="font-syne font-bold tracking-tighter text-gray-500 group-hover:text-white transition-colors duration-300 text-2xl md:text-3xl">ZETKA</span>
+                </div>
+                
+                <div class="flex items-center gap-4 mx-8 group min-w-max">
+                    <img src="https://lh3.googleusercontent.com/d/1QhzLq437o24xVnb7Wlanx_8qQEbP_K3l" alt="NezenCreatif" class="h-12 md:h-16 w-auto opacity-50 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0">
+                    <span class="font-syne font-bold tracking-tighter text-gray-500 group-hover:text-white transition-colors duration-300 text-2xl md:text-3xl">NEZEN CREATIF</span>
+                </div>
+
+                <div class="flex items-center gap-4 mx-8 group min-w-max">
+                    <img src="https://lh3.googleusercontent.com/d/12cdvT8kl261PX7z-WQfd9VQUiCIbnXul" alt="ZeroOne" class="h-12 md:h-16 w-auto opacity-50 group-hover:opacity-100 transition-all duration-300 grayscale group-hover:grayscale-0">
+                    <span class="font-syne font-bold tracking-tighter text-gray-500 group-hover:text-white transition-colors duration-300 text-2xl md:text-3xl">ZERO ONE</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer / CTA -->
+    <footer id="contact" class="bg-[#050505] pt-24 pb-12 px-6 border-t border-white/10 relative z-20">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="text-gray-400 font-inter mb-4">Punya ide proyek menarik?</p>
+            <h2 class="font-syne text-5xl md:text-8xl font-bold mb-12 hover:text-gray-300 transition-colors cursor-pointer hover-trigger">
+                LET'S WORK <br> TOGETHER
+            </h2>
+            
+            <!-- Link WhatsApp Updated -->
+            <a href="https://wa.me/6287787669471" target="_blank" class="hover-trigger inline-block bg-white text-black font-bold font-syne px-10 py-4 rounded-full hover:bg-gray-200 transition-colors mb-20">
+                Hubungi Kami via WhatsApp
+            </a>
+
+            <div class="flex flex-col md:flex-row justify-between items-center border-t border-white/10 pt-8">
+                <div class="text-2xl font-syne font-bold mb-4 md:mb-0 flex items-center">
+                    <!-- Updated with Baizzu Logo -->
+                    <img src="https://lh3.googleusercontent.com/d/1hovhnQ-DRxuy7RNPymGUilyWVqevnabn" alt="Baizzu Studio Logo" class="h-6 w-auto mr-3 opacity-70">
+                    BAIZZU.
+                </div>
+                
+                <div class="flex space-x-6 mb-4 md:mb-0">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors hover-trigger"><i data-lucide="instagram"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors hover-trigger"><i data-lucide="twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors hover-trigger"><i data-lucide="dribbble"></i></a>
+                </div>
+
+                <div class="text-gray-500 text-sm font-inter">
+                    &copy; 2026 Baizzu Studio. All Rights Reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // 1. Loader Logic
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500);
+            }, 1500);
+        });
+
+        // 2. Custom Cursor Logic
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-outline');
+        
+        // Mouse Move
+        window.addEventListener('mousemove', (e) => {
+            const posX = e.clientX;
+            const posY = e.clientY;
+
+            // Dot follows instantly
+            cursorDot.style.left = `${posX}px`;
+            cursorDot.style.top = `${posY}px`;
+
+            // Outline follows with slight delay using animate method for performance
+            cursorOutline.animate({
+                left: `${posX}px`,
+                top: `${posY}px`
+            }, { duration: 500, fill: "forwards" });
+        });
+
+        // Hover Effects for Cursor
+        const hoverTriggers = document.querySelectorAll('.hover-trigger');
+        hoverTriggers.forEach(trigger => {
+            trigger.addEventListener('mouseenter', () => {
+                document.body.classList.add('hovering');
+            });
+            trigger.addEventListener('mouseleave', () => {
+                document.body.classList.remove('hovering');
+            });
+        });
+
+        // 3. Featured Slider Logic (Updated for #work section)
+        const featSlides = document.querySelectorAll('.featured-slide');
+        const featPrevBtn = document.getElementById('feat-prev');
+        const featNextBtn = document.getElementById('feat-next');
+        let currentFeatSlide = 0;
+        let featSlideInterval;
+
+        function showFeatSlide(index) {
+            featSlides.forEach((slide, i) => {
+                slide.style.opacity = i === index ? '1' : '0';
+            });
+            currentFeatSlide = index;
+        }
+
+        function nextFeatSlide() {
+            let next = (currentFeatSlide + 1) % featSlides.length;
+            showFeatSlide(next);
+        }
+
+        function prevFeatSlide() {
+            let prev = (currentFeatSlide - 1 + featSlides.length) % featSlides.length;
+            showFeatSlide(prev);
+        }
+
+        // Event Listeners for controls
+        if (featNextBtn) {
+            featNextBtn.addEventListener('click', () => {
+                nextFeatSlide();
+                resetFeatInterval();
+            });
+        }
+
+        if (featPrevBtn) {
+            featPrevBtn.addEventListener('click', () => {
+                prevFeatSlide();
+                resetFeatInterval();
+            });
+        }
+
+        // Auto slide
+        function startFeatInterval() {
+            featSlideInterval = setInterval(nextFeatSlide, 5000);
+        }
+
+        function resetFeatInterval() {
+            clearInterval(featSlideInterval);
+            startFeatInterval();
+        }
+
+        if (featSlides.length > 0) {
+            startFeatInterval(); // Start on load if slider exists
+        }
+
+
+        // 4. Navbar Blur on Scroll
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('bg-dark/80', 'py-2');
+                navbar.classList.remove('bg-dark/50', 'py-4');
+            } else {
+                navbar.classList.add('bg-dark/50', 'py-4');
+                navbar.classList.remove('bg-dark/80', 'py-2');
+            }
+        });
+
+        // 5. Mobile Menu Logic
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+        let isMenuOpen = false;
+
+        menuBtn.addEventListener('click', () => {
+            isMenuOpen = !isMenuOpen;
+            if (isMenuOpen) {
+                mobileMenu.classList.remove('opacity-0', 'pointer-events-none');
+                document.body.style.overflow = 'hidden';
+            } else {
+                mobileMenu.classList.add('opacity-0', 'pointer-events-none');
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                isMenuOpen = false;
+                mobileMenu.classList.add('opacity-0', 'pointer-events-none');
+                document.body.style.overflow = 'auto';
+            });
+        });
+
+        // 6. Load More Logic
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        const hiddenItems = document.querySelectorAll('.portfolio-item.hidden');
+
+        if (hiddenItems.length === 0) {
+            if(loadMoreBtn) loadMoreBtn.style.display = 'none';
+        }
+
+        if(loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', () => {
+                // Show all hidden items with fade in
+                hiddenItems.forEach((item, index) => {
+                    item.classList.remove('hidden');
+                    item.classList.add('animate-fade-in');
+                    item.style.animationDelay = `${index * 50}ms`; // Slightly faster stagger for many items
+                });
+                loadMoreBtn.style.display = 'none'; // Hide button after loading
+            });
+        }
+        
+        // Add pause on hover for marquee
+        const scrollerInner = document.querySelectorAll('.scroller__inner');
+        scrollerInner.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                el.style.animationPlayState = 'paused';
+            });
+            el.addEventListener('mouseleave', () => {
+                el.style.animationPlayState = 'running';
+            });
+        });
+
+    </script>
+</body>
+</html>
